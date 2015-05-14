@@ -16,6 +16,7 @@ with the external dll using memory buffer. Dll will take care of the memory mall
 %query tick records from 20150105 to today,specify fields to 'Timestamp','HighPrice','LowPrice' and 'LastPrice',
 also the records limit is 9. FYI,ticks data is compressed with lzma.
 
+
 start_time = datenum(2015,1,5)
 
 [ret,frame] = GetTicks(dbname,'TF1506',{'Timestamp';'HighPrice';'LowPrice';'LastPrice'},start_time,now,9);
