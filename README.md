@@ -4,6 +4,10 @@ mongodb solution for future market data
 # usage
 
 ## query
+provided with python,matlab,R query interfaces
+
+### python
+comming soon...
 ### matlab
 
 1. matlab connects to mongodb by using mongo-matlab-driver.
@@ -26,5 +30,8 @@ start_time = datenum(2015,1,5)
 
 [Timestamp,Volume,Turnover,High,Low,Open,Close]=GetBar(dbname,'TF1506','min',start_time, now);
 
+
+### R
+under way...
 ## migrate
 to be continued...
