@@ -1,6 +1,6 @@
 # query in matlab
 
-query fucntions relys on [decompress](https://github.com/tianyaqu/decompress) package,you may get and build that package at first place.
+query fucntions relys on [mongo-matlab-driver](https://github.com/gerald-lindsly/mongo-matlab-driver) ,as you can see i put the driver in project folder.
 
 # usage
 Firstly you need the two steps done before you make the query.
@@ -9,6 +9,7 @@ Firstly you need the two steps done before you make the query.
 2. compile the decompress.dll with the msvc project,take care of the dependency of lzma(7zSDK)
 
 Now let's make the query
+
     start_time = datenum(2015,1,5)
     [ret,frame] = GetTicks(dbname,'TF1506',{'Timestamp';'HighPrice';'LowPrice';'LastPrice'},start_time,now,9);
 
