@@ -1,7 +1,23 @@
 library(decompress)
 library(xts)
 
-GetBar <- function(market, contract_id, type, start, end = as.POSIXlt(Sys.time(), "GMT"), limit = 1000) {
+#' Get bar data from db
+#' 
+#' @param market your db's name.
+#' @param instrument_id your instrument name.
+#' @param type bar types,we provided three types,aka 'min','hour' and 'day'.
+#' @param start data from that time.
+#' @param end data before that time,default is now.
+#' @param limit data number limit,default is 1000.
+#' @return data wrapped in xts format.
+#' @examples
+#' tstr = '2015-01-05 09:14:06'
+#' start = as.POSIXct(tstr,tz='GMT')
+#' tstr1 = '2015-01-06 10:00:06'
+#' end = as.POSIXct(tstr1,tz='GMT')
+#' bar <-GetBar('helloyz','TF1506','min',start,end)
+
+GetBar <- function(market, instrument_id, type, start, end = as.POSIXlt(Sys.time(), "GMT"), limit = 1000) {
   ip <- '127.0.0.1'
   port <- '27017'
   uri <- paste(ip,port,sep=':')
@@ -11,7 +27,7 @@ GetBar <- function(market, contract_id, type, start, end = as.POSIXlt(Sys.time()
   if(rmongodb::mongo.is.connected(mongo) == TRUE) {
     coll = paste(market,type,sep='.') 
     
-    records <- rmongodb::mongo.find.all(mongo, coll, query = list('InstrumentID'= contract_id,'Timestamp' = list('$gte' = start), 'Timestamp' = list('$lt' = end)),limit = limit)
+    records <- rmongodb::mongo.find.all(mongo, coll, query = list('InstrumentID'= instrument_id,'Timestamp' = list('$gte' = start), 'Timestamp' = list('$lt' = end)),limit = limit)
     df <- do.call("rbind", lapply(records, data.frame))
   }
   data <- df[fields]
@@ -19,7 +35,27 @@ GetBar <- function(market, contract_id, type, start, end = as.POSIXlt(Sys.time()
   return (df_xts)
 }
 
-GetTicks <- function(market, contract_id,fields,start, end = as.POSIXlt(Sys.time(), "GMT"), limit = 30) {
+#' Get ticks data from db
+#' 
+#' @param market your db's name.
+#' @param instrument_id your instrument name.
+#' @param field avaiable data fields,'Open','Close','High','Low','Volume','Turnover',
+#' 'Last','Average','Preclose','Openinterest','Preopeninterest','Presettle','Settle','Upper','Lower',
+#' 'Askprice1','Askprice2','Askprice3','Askprice4','Askprice5',
+#' 'Askvolume1','Askvolume2','Askvolume3','Askvolume4','Askvolume5'
+#' 'Bidprice1','Bidprice2','Bidprice3','Bidprice4','Bidprice5',
+#' 'Bidvolume1','Bidvolume2','Bidvolume3','Bidvolume4','Bidvolume5'.
+#' @param start data from that time.
+#' @param end data before that time,default is now.
+#' @param limit day number limit,default is 30.
+#' @return data wrapped in xts format.
+#' @examples
+#' tstr = '2015-01-05 00:00:00'
+#' start = as.POSIXct(tstr,tz='GMT')
+#' tstr1 = '2015-01-08 00:00:00'
+#' end = as.POSIXct(tstr1,tz='GMT')
+#' ticks <-GetTicks('helloyz','TF1506','min',start,end)
+GetTicks <- function(market, instrument_id,fields,start, end = as.POSIXlt(Sys.time(), "GMT"), limit = 30) {
     ip <- '127.0.0.1'
     port <- '27017'
     uri <- paste(ip,port,sep=':')
@@ -28,7 +64,7 @@ GetTicks <- function(market, contract_id,fields,start, end = as.POSIXlt(Sys.time
     if(rmongodb::mongo.is.connected(mongo) == TRUE) {
     coll = paste(market,'ticks',sep='.')  
 
-    records <- rmongodb::mongo.find.all(mongo, coll, query = list('InstrumentID'= contract_id,'Timestamp' = list('$gte' = start), 'Timestamp' = list('$lt' = end)),limit = limit)
+    records <- rmongodb::mongo.find.all(mongo, coll, query = list('InstrumentID'= instrument_id,'Timestamp' = list('$gte' = start), 'Timestamp' = list('$lt' = end)),limit = limit)
     len <- length(records)
     
     data_set <- data.frame(Date=as.Date(character()),
