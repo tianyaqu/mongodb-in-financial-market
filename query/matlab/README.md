@@ -1,4 +1,4 @@
-# query in R
+# query in matlab
 
 query fucntions relys on [decompress](https://github.com/tianyaqu/decompress) package,you may get and build that package at first place.
 
