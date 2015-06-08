@@ -1,37 +1,36 @@
 # mongodb-in-financial-market
 mongodb solution for future market data
 
+# what and how
+This project comes with a  solution to store and query financial data(stocks,contracts and other similar financial instruments) through Mongodb.
+It consists of two parts of work:first,migrate the market data(.csv files) to a Mongodb database and then fetch the data through network.
+
+When the data migrations are done,you'll get three levels of bar data in the database,aka per minute,per hour and per day,also the original ticks data
+will be kept in a ticks collection,but we compress that data(one instrument per day) before it is put to the database.It saves disk storage and more importantly,
+will reduce the transportation time through the wire,especially when you have a really large dataset after years of years accumulation.
+
+It provides with python,Matlab and R interfaces for users to choose their favourite tools.
+
 # usage
 
 ## query
-provided with python,matlab,R query interfaces
+two kinds of query,bar type and tick type,they share a very similar grammar even between different programming languages.
+for example,python:
 
-### python
-coming soon...
-### matlab
+    start = datetime.datetime(2015,1,3,14)
+    end = datetime.datetime(2016,4,30,11)
+    q = Query(com)
+    # query bar
+    bar = q.GetBar('TF1506','min',start,end)
+    #query ticks
+    tick = q.GetTicks('TF1506',['TradingDay','LastPrice','HighestPrice','LowestPrice'],start,end,1)
 
-1. matlab connects to mongodb by using mongo-matlab-driver.
-2. each day's ticks data is compressed using lzma.the decompress action is done in c/c++ dll,matlab has to communicate
-with the external dll using memory buffer. Dll will take care of the memory malloc and free.
-3. unzip the mongo-matlab-driver zip,addpath to the directory,then MongoStart() to enable the mongodb driver
-4. compile the decompress.dll with the msvc project,take care of the dependency of lzma(7zSDK)
-5. let's go on the unexpected journey...
-
-%query tick records from 20150105 to today,specify fields to 'Timestamp','HighPrice','LowPrice' and 'LastPrice',
-also the records limit is 9. FYI,ticks data is compressed with lzma.
+you will find examples in their separate folders.
 
 
-start_time = datenum(2015,1,5)
-
-[ret,frame] = GetTicks(dbname,'TF1506',{'Timestamp';'HighPrice';'LowPrice';'LastPrice'},start_time,now,9);
-
-
-%query bar records from 20150105 to today,bar is minute level.
-
-[Timestamp,Volume,Turnover,High,Low,Open,Close]=GetBar(dbname,'TF1506','min',start_time, now);
-
-
-### R
-under developing...
 ## migrate
-to be continued...
+in the migrate folder,you will see a migrate.py,fill the dir with your own directory,and beaware it's not done yet.You'll have to make your own 
+copy of parser to dealing with your files,but it's not much work to worry about.see cffex.py or sh.py to get a better understanding.And last,you
+have the conf file written in your flavour accordingly,m.conf and sh.conf are easy examples.
+
+After that,just open a terminal and change to the migrate directory,print 'python migrate.py',you see all is so nice and easy.
