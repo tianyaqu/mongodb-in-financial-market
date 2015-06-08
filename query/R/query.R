@@ -1,5 +1,6 @@
 library(decompress)
 library(xts)
+
 GetBar <- function(market, contract_id, type, start, end = as.POSIXlt(Sys.time(), "GMT"), limit = 1000) {
   ip <- '127.0.0.1'
   port <- '27017'
@@ -10,8 +11,6 @@ GetBar <- function(market, contract_id, type, start, end = as.POSIXlt(Sys.time()
   if(rmongodb::mongo.is.connected(mongo) == TRUE) {
     coll = paste(market,type,sep='.') 
     
-    #records <- rmongodb::mongo.find(mongo, coll, query = list('InstrumentID'= contract_id,'Timestamp' = list('$gte' = start), 'Timestamp' = list('$lt' = end)),limit = limit)
-    #df <- rmongodb::mongo.cursor.to.data.frame(records)
     records <- rmongodb::mongo.find.all(mongo, coll, query = list('InstrumentID'= contract_id,'Timestamp' = list('$gte' = start), 'Timestamp' = list('$lt' = end)),limit = limit)
     df <- do.call("rbind", lapply(records, data.frame))
   }
@@ -32,6 +31,11 @@ GetTicks <- function(market, contract_id,fields,start, end = as.POSIXlt(Sys.time
     records <- rmongodb::mongo.find.all(mongo, coll, query = list('InstrumentID'= contract_id,'Timestamp' = list('$gte' = start), 'Timestamp' = list('$lt' = end)),limit = limit)
     len <- length(records)
     
+    data_set <- data.frame(Date=as.Date(character()),
+                     File=character(), 
+                     User=character(), 
+                     stringsAsFactors=FALSE)
+    
     for (i in 1:length(records))
     {
         t <- records[[i]]$Timestamp
@@ -50,7 +54,7 @@ GetTicks <- function(market, contract_id,fields,start, end = as.POSIXlt(Sys.time
         millisec <- df[,'millsec']/1000
 
         ts <- ISOdatetime(year,month,day,hour,minute,sec,tz="GMT")+millisec
-        df$timestamp <- ts
+        df$Timestamp <- ts
         
         #delete character columns
         df$id <- NULL
@@ -59,9 +63,12 @@ GetTicks <- function(market, contract_id,fields,start, end = as.POSIXlt(Sys.time
         if(length(fields) <= 0)
             return (df)
         else
-            data <- df[c('timestamp',fields)]
-            df_xts <- xts(data[,-1],order.by=as.POSIXct(df$timestamp))     
+            data <- df[c('Timestamp',fields)]
+            data_set <- rbind(data_set, data)
+     
     }
+    
+    df_xts <- xts(data_set[,-1],order.by=as.POSIXct(data_set$Timestamp))
     return (df_xts)
   }
 }

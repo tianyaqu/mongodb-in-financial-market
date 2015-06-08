@@ -7,7 +7,7 @@ mongodb solution for future market data
 provided with python,matlab,R query interfaces
 
 ### python
-comming soon...
+coming soon...
 ### matlab
 
 1. matlab connects to mongodb by using mongo-matlab-driver.
